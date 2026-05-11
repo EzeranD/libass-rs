@@ -1,6 +1,4 @@
-use std::marker::PhantomData;
-use std::ptr::NonNull;
-use std::slice;
+use std::{marker::PhantomData, ptr::NonNull, slice};
 
 use libass_sys as ffi;
 
@@ -16,23 +14,26 @@ pub struct Image<'renderer> {
     phantom: PhantomData<&'renderer mut ffi::ass_image>,
 }
 
-impl<'renderer> Image<'renderer> {
+impl Image<'_> {
     pub(crate) unsafe fn new_unchecked(image: *mut ffi::ass_image) -> Self {
         Image {
-            handle: Some(NonNull::new_unchecked(image)),
+            handle: Some(unsafe { NonNull::new_unchecked(image) }),
             phantom: PhantomData,
         }
     }
 }
 
-impl<'renderer> Iterator for Image<'renderer> {
+impl Iterator for Image<'_> {
     type Item = Layer;
     fn next(&mut self) -> Option<Layer> {
+        use ffi::ass_image__bindgen_ty_1::{
+            IMAGE_TYPE_CHARACTER, IMAGE_TYPE_OUTLINE, IMAGE_TYPE_SHADOW,
+        };
+
+        use crate::ImageKind::{Character, Outline, Shadow};
+
         let handle = self.handle?;
         let c_layer = unsafe { handle.as_ref() };
-
-        use crate::ImageKind::*;
-        use ffi::ass_image__bindgen_ty_1::*;
 
         let layer = Some(Layer {
             width: c_layer.w,
@@ -42,7 +43,7 @@ impl<'renderer> Iterator for Image<'renderer> {
                 let mut ptr = c_layer.bitmap;
                 for _ in 0..c_layer.h {
                     unsafe {
-                        vec.extend_from_slice(slice::from_raw_parts(ptr, c_layer.w as usize))
+                        vec.extend_from_slice(slice::from_raw_parts(ptr, c_layer.w as usize));
                     };
                     ptr = unsafe { ptr.offset(c_layer.stride as isize) };
                 }

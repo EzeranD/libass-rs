@@ -1,5 +1,3 @@
 [workspace]
-members = [
-    "libass",
-    "libass-sys",
-]
+members = ["crates/*"]
+resolver = "3"

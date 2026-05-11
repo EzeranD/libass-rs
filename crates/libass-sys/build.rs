@@ -1,12 +1,10 @@
-extern crate bindgen;
-extern crate metadeps;
-
-use std::path::PathBuf;
-use std::{env, fs};
+use std::{env, fs, path::PathBuf};
 
 fn main() {
-    let libs = metadeps::probe().unwrap();
-    let headers = libs.get("libass").unwrap().include_paths.clone();
+    let lib = pkg_config::Config::new()
+        .atleast_version("0.17")
+        .probe("libass")
+        .unwrap();
 
     let mut builder = bindgen::builder()
         .header("data/libass.h")
@@ -23,7 +21,7 @@ fn main() {
         .rustified_enum("IMAGE_TYPE.*")
         .rustified_enum("TRACK_TYPE.*");
 
-    for header in headers {
+    for header in &lib.include_paths {
         builder = builder.clang_arg("-I").clang_arg(header.to_str().unwrap());
     }
 

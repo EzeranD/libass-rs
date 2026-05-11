@@ -1,0 +1,17 @@
+[package]
+name = "libass"
+version = "0.2.0"
+authors = ["Tadeo Kondrak <me@tadeo.ca>", "Ezeran Duchesne <commit@ezeran.me>"]
+edition = "2024"
+description = "Safe bindings for libass"
+license = "ISC"
+repository = "https://github.com/EzeranD/libass-rs"
+keywords = ["libass"]
+categories = ["api-bindings", "multimedia", "multimedia::video", "graphics"]
+
+[dependencies]
+bitflags = "2.13.0"
+libass-sys = { version = "0.1.2", path = "../libass-sys" }
+
+[dev-dependencies]
+png = "0.18.1"

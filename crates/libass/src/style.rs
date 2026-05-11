@@ -1,9 +1,9 @@
-use bitflags::bitflags;
-use std::ffi::CString;
-use std::os::raw::c_int;
+use std::{ffi::CString, os::raw::c_int};
 
+use bitflags::bitflags;
 use libass_sys as ffi;
 
+#[derive(Clone)]
 pub struct Style {
     pub name: CString,
     pub font_name: CString,
@@ -36,7 +36,7 @@ pub struct Style {
 bitflags! {
     pub struct OverrideBits: u32 {
         const DEFAULT = 0;
-        const BIT_STYLE = 1;
+        const BIT_STYLE = 1 << 0;
         const BIT_SELECTIVE_FONT_SCALE = 1 << 1;
         const BIT_FONT_SIZE = 1 << 1;
         const BIT_FONT_SIZE_FIELDS = 1 << 2;
@@ -48,6 +48,7 @@ bitflags! {
         const BIT_MARGINS = 1 << 8;
         const FULL_STYLE = 1 << 9;
         const BIT_JUSTIFY = 1 << 10;
+        const BIT_BLUR = 1 << 11;
     }
 }
 
@@ -55,17 +56,17 @@ impl Style {
     // the result is only valid as long as the parent is
     pub(crate) unsafe fn as_ass_style(&self) -> ffi::ass_style {
         ffi::ass_style {
-            Name: self.name.as_ptr() as *mut _,
-            FontName: self.font_name.as_ptr() as *mut _,
+            Name: self.name.as_ptr().cast_mut(),
+            FontName: self.font_name.as_ptr().cast_mut(),
             FontSize: self.font_size,
             PrimaryColour: self.primary_color,
             SecondaryColour: self.secondary_color,
             OutlineColour: self.outline_color,
             BackColour: self.back_color,
-            Bold: self.bold as c_int,
-            Italic: self.italic as c_int,
-            Underline: self.underline as c_int,
-            StrikeOut: self.strikeout as c_int,
+            Bold: c_int::from(self.bold),
+            Italic: c_int::from(self.italic),
+            Underline: c_int::from(self.underline),
+            StrikeOut: c_int::from(self.strikeout),
             ScaleX: self.scale_x,
             ScaleY: self.scale_y,
             Spacing: self.spacing,
@@ -78,7 +79,7 @@ impl Style {
             MarginR: self.margin_r,
             MarginV: self.margin_v,
             Encoding: self.encoding,
-            treat_fontname_as_pattern: self.treat_fontname_as_pattern as c_int,
+            treat_fontname_as_pattern: c_int::from(self.treat_fontname_as_pattern),
             Blur: self.blur,
             Justify: self.justify,
         }

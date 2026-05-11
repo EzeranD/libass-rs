@@ -1,0 +1,14 @@
+[package]
+name = "libass-sys"
+version = "0.1.2"
+authors = ["Tadeo Kondrak <me@tadeo.ca>", "Ezeran Duchesne <commit@ezeran.me>"]
+edition = "2024"
+build = "build.rs"
+description = "Raw bindings for libass"
+license = "ISC"
+repository = "https://github.com/EzeranD/libass-rs"
+categories = ["external-ffi-bindings"]
+
+[build-dependencies]
+bindgen = "0.72.1"
+pkg-config = "0.3.33"
